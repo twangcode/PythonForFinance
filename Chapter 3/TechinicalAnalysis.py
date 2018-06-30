@@ -19,7 +19,7 @@ def Add_Two_MA(symbol, start_dt, end_dt, source='quandl', draw_plot=False):
 		plt.show()
 	return data
 
-def Trading_Signal(data, threshold=10, draw_plot=False):
+def Trading_Signal(data, threshold=0, draw_plot=False):
 	data['42-252'] = data['TwoMonthMA'] - data['OneYearMA']
 	
 	data['Regime'] = np.where(data['42-252'] > threshold, 1, 0)
@@ -34,12 +34,13 @@ def Trading_Signal(data, threshold=10, draw_plot=False):
 
 def Back_Test(data):
 	data['BuyHoldRet'] = np.log(data['AdjClose'] / data['AdjClose'].shift(1))
-	data['BuyHoldRet'].cumsum().apply(np.exp).plot()
+	data['StrategyRet'] = data['Regime'].shift(1) * data['BuyHoldRet']
+	data[['BuyHoldRet', 'StrategyRet']].cumsum().apply(np.exp).plot()
 	plt.show()
 
 def main():
 	print 'Start Running...'
-	symbol = 'GOOG'
+	symbol = 'AAPL'
 	start_dt = '1/1/2010'
 	end_dt = '1/1/2018'
 	
